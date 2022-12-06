@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS tasks (
-    id SERILA PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     description text,
     created TIMESTAMP,
     done BOOLEAN
