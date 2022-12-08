@@ -17,14 +17,26 @@ import java.time.LocalDateTime;
 @Table(name = "Tasks")
 public class Task {
 
+    /**
+     * id задачи.
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @EqualsAndHashCode.Include
     private int id;
 
+    /**
+     * Описание задачи.
+     */
     private String description;
 
+    /**
+     * Дата создания задачи.
+     */
     private LocalDateTime created;
 
+    /**
+     * Статус выполнения.
+     */
     private boolean done;
 }
