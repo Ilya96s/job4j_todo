@@ -24,10 +24,10 @@
             <a class="nav-link" th:href="@{/tasks}">Все</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:href="@{/readyTasks}">Выполненные</a>
+            <a class="nav-link" th:href="@{/tasks/ready?status=true}">Выполненные</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:href="@{/newTasks}">Новые</a>
+            <a class="nav-link" th:href="@{/tasks/new?status=false}">Новые</a>
         </li>
     </ul>
     <br>
@@ -37,7 +37,7 @@
             Создание новой задачи
         </div>
         <div class="card-body">
-            <form th:action="@{/createTask}" method="POST">
+            <form th:action="@{/tasks/create}" method="POST">
                 <div class="form-group">
                     <label for="desc">Описание задачи</label>
                     <input type="text" class="form-control" name="description" id="desc">

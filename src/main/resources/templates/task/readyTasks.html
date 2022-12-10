@@ -25,16 +25,16 @@
             <a class="nav-link" th:href="@{/tasks}">Все</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:href="@{/readyTasks}">Выполненные</a>
+            <a class="nav-link" th:href="@{/tasks/ready?status=true}">Выполненные</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:href="@{/newTasks}">Новые</a>
+            <a class="nav-link" th:href="@{/tasks/new?status=false}">Новые</a>
         </li>
     </ul>
 
     <br>
     <ul class="nav justify-content-center">
-        <a th:href="@{/formAddTask}" class="btn btn-primary" role="button" data-bs-toggle="button">Добавить задачу</a>
+        <a th:href="@{/tasks/formAdd}" class="btn btn-primary" role="button" data-bs-toggle="button">Добавить задачу</a>
     </ul>
     <br>
 
@@ -52,7 +52,7 @@
             <tr th:each="task: ${tasks}">
                 <td th:text="${task.id}" />
                 <td>
-                    <a th:href="@{|/taskInfo/${task.id}|}">
+                    <a th:href="@{|/tasks/info/${task.id}|}">
                         <span th:text="${task.description}"></span>
                     </a>
                 </td>

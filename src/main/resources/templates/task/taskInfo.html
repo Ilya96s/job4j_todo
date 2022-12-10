@@ -25,17 +25,17 @@
             <a class="nav-link" th:href="@{/tasks}">Все</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:href="@{/readyTasks}">Выполненные</a>
+            <a class="nav-link" th:href="@{/tasks/ready?status=true}">Выполненные</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" th:href="@{/newTasks}">Новые</a>
+            <a class="nav-link" th:href="@{/tasks/new?status=false}">Новые</a>
         </li>
     </ul>
     <br>
     <br>
     <div class="card text-center">
         <div class="card-header ">
-            Сведения о задачи
+            Сведения о задаче
         </div>
         <div class="card-body">
             <p>
@@ -62,9 +62,9 @@
                 </span>
             </p>
             <div class="d-grid gap-2 mx-auto">
-                <a th:href="@{|/setStatusDone/${task.id}|}" type="button" class="btn btn-outline-success">Выполнено</a>
-                <a th:href="@{|/formUpdateTask/${task.id}|}" type="button" class="btn btn-outline-secondary">Отредактировать</a>
-                <a th:href="@{|/deleteTask/${task.id}|}" type="button" class="btn btn-outline-danger">Удалить</a>
+                <a th:href="@{|/tasks/setStatusDone/${task.id}|}" type="button" class="btn btn-outline-success">Выполнено</a>
+                <a th:href="@{|/tasks/formUpdate/${task.id}|}" type="button" class="btn btn-outline-secondary">Отредактировать</a>
+                <a th:href="@{|/tasks/delete/${task.id}|}" type="button" class="btn btn-outline-danger">Удалить</a>
             </div>
         </div>
     </div>
