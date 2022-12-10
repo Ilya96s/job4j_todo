@@ -1,13 +1,9 @@
 package ru.job4j.todo.controller;
 
 import lombok.AllArgsConstructor;
-import net.jcip.annotations.GuardedBy;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.service.TaskService;
 import java.util.List;
@@ -20,12 +16,12 @@ import java.util.List;
 
 @Controller
 @AllArgsConstructor
+@RequestMapping("/tasks")
 public class TaskController {
 
     /**
      * Сервис по работе с задачами
      */
-    @GuardedBy("this")
     private final TaskService service;
 
     /**
@@ -34,7 +30,7 @@ public class TaskController {
      * @param model модель с данными.
      * @return представление tasks.
      */
-    @GetMapping("/tasks")
+    @GetMapping("")
     public String tasks(Model model) {
         List<Task> taskList = service.findAll();
         if (taskList.isEmpty()) {
@@ -48,7 +44,7 @@ public class TaskController {
      * Метод возвращает представление с формой добавления задачи.
      * @return представление addTask.
      */
-    @GetMapping("/formAddTask")
+    @GetMapping("/formAdd")
     public String formAddTask() {
         return "task/addTask";
     }
@@ -58,7 +54,7 @@ public class TaskController {
      * @param task задача.
      * @return переадресация по url /tasks.
      */
-    @PostMapping("createTask")
+    @PostMapping("/create")
     public String createTask(@ModelAttribute Task task) {
         service.add(task);
         return "redirect:/tasks";
@@ -70,7 +66,7 @@ public class TaskController {
      * @param taskId id задачи.
      * @return представление taskInfo.
      */
-    @GetMapping("/taskInfo/{taskId}")
+    @GetMapping("/info/{taskId}")
     public String taskInfo(Model model, @PathVariable("taskId") int taskId) {
         model.addAttribute("task", service.findById(taskId).get());
         return "task/taskInfo";
@@ -81,7 +77,7 @@ public class TaskController {
      * @param taskId id задачи.
      * @return переадресация по url /tasks.
      */
-    @GetMapping("/deleteTask/{taskId}")
+    @GetMapping("/delete/{taskId}")
     public String deleteTask(@PathVariable("taskId") int taskId) {
         service.delete(taskId);
         return "redirect:/tasks";
@@ -94,9 +90,7 @@ public class TaskController {
      */
     @GetMapping("/setStatusDone/{taskId}")
     public String setStatusDone(@PathVariable("taskId") int taskId) {
-        Task taskFromDB = service.findById(taskId).get();
-        taskFromDB.setDone(true);
-        service.replace(taskId, taskFromDB);
+        service.replace(taskId, service.findById(taskId).get());
         return "redirect:/tasks";
     }
 
@@ -106,7 +100,7 @@ public class TaskController {
      * @param taskId id задачи.
      * @return представление updateTask.
      */
-    @GetMapping("formUpdateTask/{taskId}")
+    @GetMapping("/formUpdate/{taskId}")
     public String formUpdateTask(Model model, @PathVariable("taskId") int taskId) {
         model.addAttribute("task", service.findById(taskId).get());
         return "task/updateTask";
@@ -117,7 +111,7 @@ public class TaskController {
      * @param task задача.
      * @return переадресация по url /tasks.
      */
-    @PostMapping("updateTask")
+    @PostMapping("/update")
     public String updateTask(@ModelAttribute Task task) {
         service.replace(task.getId(), task);
         return "redirect:/tasks";
@@ -127,11 +121,12 @@ public class TaskController {
      * Метод возвращает представление со списком всех выполненных задач.
      * Если список пуст, то в представление будет передано сообщение "Нет выполненных задач....".
      * @param model модель с данными.
+     * @param status значение параметра запроса по ключу status.
      * @return список задач.
      */
-    @GetMapping("readyTasks")
-    public String getReadyTasks(Model model) {
-        List<Task> taskList = service.findReadyTasks();
+    @GetMapping("/ready")
+    public String getReadyTasks(Model model, @RequestParam(name = "status", required = false) Boolean status) {
+        List<Task> taskList = service.findByStatus(status);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет выполненных задач...");
         }
@@ -143,11 +138,12 @@ public class TaskController {
      * Метод возвращает представление со списком всех не выполненных задач.
      * Если список пуст, то в представление будет передано сообщение "Нет новых задач....".
      * @param model модель с данными.
+     * @param status значение параметра запроса по ключу status.
      * @return список задач.
      */
-    @GetMapping("newTasks")
-    public String getNewTasks(Model model) {
-        List<Task> taskList = service.findNotReadyTasks();
+    @GetMapping("/new")
+    public String getNewTasks(Model model, @RequestParam(name = "status", required = false) Boolean status) {
+        List<Task> taskList = service.findByStatus(status);
         model.addAttribute("tasks", taskList);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет новых задач....");
