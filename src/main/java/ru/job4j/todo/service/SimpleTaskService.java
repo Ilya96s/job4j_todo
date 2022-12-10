@@ -71,18 +71,11 @@ public class SimpleTaskService implements TaskService {
     }
 
     /**
-     * Найти все задачи со статусом true.
+     * Найти задачи по статусу
+     * @param status статус.
      * @return список задач.
      */
-    public List<Task> findReadyTasks() {
-        return taskRepository.findReadyTasks();
-    }
-
-    /**
-     * Найти последние добавленные задачи.
-     * @return список задач.
-     */
-    public List<Task> findNotReadyTasks() {
-        return taskRepository.findNotReadyTasks();
+    public List<Task> findByStatus(boolean status) {
+        return taskRepository.findByStatus(status);
     }
 }
