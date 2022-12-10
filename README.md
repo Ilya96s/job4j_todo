@@ -69,6 +69,8 @@ mvn spring-boot run
 ### Страница редактирования задачи
 ![](img/formUpdateTask.png)
 
+### Странциа с ошибкой
+![](img/fail.png)
 # Контакты
 - Telegram: https://t.me/ilya96s
 - GitHub: https://github.com/Ilya96s
