@@ -154,19 +154,19 @@ public class HbmTaskRepository implements TaskRepository {
     @Override
     public Optional<Task> findById(int id) {
         Session session = sf.openSession();
-        Task task = new Task();
+        Optional<Task> task = Optional.empty();
         try {
             session.beginTransaction();
-            task = (Task) session.createQuery(FIND_BY_ID)
+            task = Optional.of((Task) session.createQuery(FIND_BY_ID)
                     .setParameter("id", id)
-                    .uniqueResult();
+                    .uniqueResult());
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
             session.close();
         }
-        return Optional.of(task);
+        return task;
     }
 
     /**

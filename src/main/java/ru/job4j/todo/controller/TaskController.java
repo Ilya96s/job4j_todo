@@ -64,10 +64,13 @@ public class TaskController {
      * Метод возвращает представление с информацией о задаче.
      * @param model модель с данными.
      * @param taskId id задачи.
-     * @return представление taskInfo.
+     * @return представление taskInfo если задача найдена в базе данных, иначе переадресация по url tasks/fail.
      */
     @GetMapping("/info/{taskId}")
     public String taskInfo(Model model, @PathVariable("taskId") int taskId) {
+        if (service.findById(taskId).isEmpty()) {
+            return "redirect:/tasks/fail";
+        }
         model.addAttribute("task", service.findById(taskId).get());
         return "task/taskInfo";
     }
@@ -75,21 +78,26 @@ public class TaskController {
     /**
      * Метод удаляет задачу из базы данных.
      * @param taskId id задачи.
-     * @return переадресация по url /tasks.
+     * @return переадресация по url /tasks если задача удалена, иначе /tasks/fail.
      */
     @GetMapping("/delete/{taskId}")
     public String deleteTask(@PathVariable("taskId") int taskId) {
-        service.delete(taskId);
+        if (!service.delete(taskId)) {
+            return "redirect:/tasks/fail";
+        }
         return "redirect:/tasks";
     }
 
     /**
      * Метод перевод задачу в состояние выполнена.
      * @param taskId id задачи.
-     * @return пернадресация по url /tasks.
+     * @return пернадресация по url /tasks если задача изменена, иначе переадресация по url /tasks/fail.
      */
     @GetMapping("/setStatusDone/{taskId}")
     public String setStatusDone(@PathVariable("taskId") int taskId) {
+        if (service.findById(taskId).isEmpty()) {
+            return "redirect:/tasks/fail";
+        }
         service.replace(taskId, service.findById(taskId).get());
         return "redirect:/tasks";
     }
@@ -98,10 +106,13 @@ public class TaskController {
      * Метод возвращает представление с формой для редактирования задачи.
      * @param model модель с данными.
      * @param taskId id задачи.
-     * @return представление updateTask.
+     * @return представление updateTask если задача найдена в базе данных, иначе переадресация по url /tasks/fail.
      */
     @GetMapping("/formUpdate/{taskId}")
     public String formUpdateTask(Model model, @PathVariable("taskId") int taskId) {
+        if (service.findById(taskId).isEmpty()) {
+            return "redirect:/tasks/fail";
+        }
         model.addAttribute("task", service.findById(taskId).get());
         return "task/updateTask";
     }
@@ -109,12 +120,25 @@ public class TaskController {
     /**
      * Метод обновляет задачу в базе данных.
      * @param task задача.
-     * @return переадресация по url /tasks.
+     * @return переадресация по url /tasks если задача обновлена, иначе /tasks/fail.
      */
     @PostMapping("/update")
     public String updateTask(@ModelAttribute Task task) {
-        service.replace(task.getId(), task);
+        if (!service.replace(task.getId(), task)) {
+            return "redirect:/tasks/fail";
+        }
         return "redirect:/tasks";
+    }
+
+    /**
+     * Метод возвращает представление с информацией об ошибке.
+     * @param model модель с данными.
+     * @return представление fail.
+     */
+    @GetMapping("/fail")
+    public String updateFail(Model model) {
+        model.addAttribute("message", "Не удалось выполнить действие");
+        return "error/fail";
     }
 
     /**
