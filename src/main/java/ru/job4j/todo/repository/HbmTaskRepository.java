@@ -3,7 +3,6 @@ package ru.job4j.todo.repository;
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -44,13 +43,7 @@ public class HbmTaskRepository implements TaskRepository {
             WHERE id = :id
             """;
 
-    private static final String FIND_READY_TASKS = """
-            From Task as task
-            WHERE done = :status
-            ORDER BY task.id
-            """;
-
-    private static final String FIND_NOT_READY_TASKS = """
+    private static final String FIND_BY_STATUS = """
             From Task as task
             WHERE done = :status
             ORDER BY task.id
@@ -97,11 +90,11 @@ public class HbmTaskRepository implements TaskRepository {
         boolean result = false;
         try {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(REPLACE);
-            query.setParameter("id", id)
+            result = session.createQuery(REPLACE)
                     .setParameter("desc", task.getDescription())
-                    .setParameter("done", task.isDone());
-            result = query.executeUpdate() > 0;
+                    .setParameter("done", task.isDone())
+                    .setParameter("id", id)
+                    .executeUpdate() > 0;
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
@@ -121,9 +114,9 @@ public class HbmTaskRepository implements TaskRepository {
         boolean result = false;
         try {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(DELETE);
-            query.setParameter("id", id);
-            result = query.executeUpdate() > 0;
+            result = session.createQuery(DELETE)
+                    .setParameter("id", id)
+                    .executeUpdate() > 0;
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
@@ -143,8 +136,7 @@ public class HbmTaskRepository implements TaskRepository {
         List<Task> tasks = new ArrayList<>();
         try {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(FIND_ALL);
-            tasks = query.list();
+            tasks = session.createQuery(FIND_ALL).list();
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
@@ -165,9 +157,9 @@ public class HbmTaskRepository implements TaskRepository {
         Task task = new Task();
         try {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(FIND_BY_ID);
-            query.setParameter("id", id);
-            task = query.uniqueResult();
+            task = (Task) session.createQuery(FIND_BY_ID)
+                    .setParameter("id", id)
+                    .uniqueResult();
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();
@@ -178,38 +170,18 @@ public class HbmTaskRepository implements TaskRepository {
     }
 
     /**
-     * Найти все задачи со статусом true.
+     * Найти задачи по статусу
+     * @param status статус.
      * @return список задач.
      */
-    public List<Task> findReadyTasks() {
+    public List<Task> findByStatus(boolean status) {
         Session session = sf.openSession();
         List<Task> tasks = new ArrayList<>();
         try {
             session.beginTransaction();
-            Query<Task> query = session.createQuery(FIND_READY_TASKS);
-            query.setParameter("status", true);
-            tasks = query.list();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return tasks;
-    }
-
-    /**
-     * Найти последние добавленные задачи.
-     * @return список задач.
-     */
-    public List<Task> findNotReadyTasks() {
-        Session session = sf.openSession();
-        List<Task> tasks = new ArrayList<>();
-        try {
-            session.beginTransaction();
-            Query<Task> query = session.createQuery(FIND_NOT_READY_TASKS);
-            query.setParameter("status", false);
-            tasks = query.list();
+            tasks = session.createQuery(FIND_BY_STATUS)
+                    .setParameter("status", status)
+                    .list();
             session.getTransaction().commit();
         } catch (Exception e) {
             session.getTransaction().rollback();

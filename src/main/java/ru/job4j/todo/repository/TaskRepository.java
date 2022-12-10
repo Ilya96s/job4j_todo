@@ -46,14 +46,9 @@ public interface TaskRepository {
     Optional<Task> findById(int id);
 
     /**
-     * Найти все задачи со статусом true.
+     * Найти задачи по статусу
+     * @param status статус.
      * @return список задач.
      */
-    List<Task> findReadyTasks();
-
-    /**
-     * Найти последние добавленные задачи.
-     * @return список задач.
-     */
-    List<Task> findNotReadyTasks();
+    List<Task> findByStatus(boolean status);
 }
