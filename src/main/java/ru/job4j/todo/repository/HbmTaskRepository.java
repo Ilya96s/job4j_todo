@@ -49,6 +49,12 @@ public class HbmTaskRepository implements TaskRepository {
             ORDER BY task.id
             """;
 
+    private static final String SET_DONE = """
+            UPDATE Task
+            SET done = true
+            WHERE id = : id
+            """;
+
     private static final Logger LOG = LoggerFactory.getLogger(HbmTaskRepository.class.getName());
 
     /**
@@ -61,7 +67,7 @@ public class HbmTaskRepository implements TaskRepository {
     /**
      * Добавить задачу в базу данных.
      * @param task задача.
-     * @return Optional.of(task) если добавили, иначе Optional.empty().
+     * @return задача.
      */
     @Override
     public Task add(Task task) {
@@ -157,7 +163,7 @@ public class HbmTaskRepository implements TaskRepository {
         Optional<Task> task = Optional.empty();
         try {
             session.beginTransaction();
-            task = Optional.of((Task) session.createQuery(FIND_BY_ID)
+            task = Optional.of(session.createQuery(FIND_BY_ID, Task.class)
                     .setParameter("id", id)
                     .uniqueResult());
             session.getTransaction().commit();
@@ -189,5 +195,25 @@ public class HbmTaskRepository implements TaskRepository {
             session.close();
         }
         return tasks;
+    }
+
+    /**
+     * Изменить состояние задачи на 'Выполнено'.
+     * @param id id задачи.
+     * @return true если состояние изменилось, иначе false
+     */
+    public boolean setDone(int id) {
+        Session session = sf.openSession();
+        boolean result = false;
+        try {
+            session.beginTransaction();
+            result = session.createQuery(SET_DONE).setParameter("id", id).executeUpdate() > 0;
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            session.getTransaction().rollback();
+        } finally {
+            session.close();
+        }
+        return result;
     }
 }
