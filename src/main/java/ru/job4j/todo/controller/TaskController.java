@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.service.TaskService;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * TaskController - контроллер, обрабатывающий запросы от клиента и возвращающий результаты
@@ -46,7 +47,7 @@ public class TaskController {
      */
     @GetMapping("/formAdd")
     public String formAddTask() {
-        return "task/addTask";
+        return "task/add";
     }
 
     /**
@@ -68,11 +69,12 @@ public class TaskController {
      */
     @GetMapping("/info/{taskId}")
     public String taskInfo(Model model, @PathVariable("taskId") int taskId) {
-        if (service.findById(taskId).isEmpty()) {
+        Optional<Task> optionalTask = service.findById(taskId);
+        if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
-        model.addAttribute("task", service.findById(taskId).get());
-        return "task/taskInfo";
+        model.addAttribute("task", optionalTask.get());
+        return "task/info";
     }
 
     /**
@@ -95,10 +97,9 @@ public class TaskController {
      */
     @GetMapping("/setStatusDone/{taskId}")
     public String setStatusDone(@PathVariable("taskId") int taskId) {
-        if (service.findById(taskId).isEmpty()) {
-            return "redirect:/tasks/fail";
+        if (!service.setDone(taskId)) {
+            return "redirect:/shared/fail";
         }
-        service.replace(taskId, service.findById(taskId).get());
         return "redirect:/tasks";
     }
 
@@ -110,11 +111,12 @@ public class TaskController {
      */
     @GetMapping("/formUpdate/{taskId}")
     public String formUpdateTask(Model model, @PathVariable("taskId") int taskId) {
-        if (service.findById(taskId).isEmpty()) {
+        Optional<Task> optionalTask = service.findById(taskId);
+        if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
-        model.addAttribute("task", service.findById(taskId).get());
-        return "task/updateTask";
+        model.addAttribute("task", optionalTask.get());
+        return "task/update";
     }
 
     /**
@@ -138,7 +140,7 @@ public class TaskController {
     @GetMapping("/fail")
     public String updateFail(Model model) {
         model.addAttribute("message", "Не удалось выполнить действие");
-        return "error/fail";
+        return "shared/fail";
     }
 
     /**
@@ -155,7 +157,7 @@ public class TaskController {
             model.addAttribute("message", "Нет выполненных задач...");
         }
         model.addAttribute("tasks", taskList);
-        return "task/readyTasks";
+        return "task/ready";
     }
 
     /**
@@ -168,11 +170,11 @@ public class TaskController {
     @GetMapping("/new")
     public String getNewTasks(Model model, @RequestParam(name = "status", required = false) Boolean status) {
         List<Task> taskList = service.findByStatus(status);
-        model.addAttribute("tasks", taskList);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет новых задач....");
         }
-        return "task/notReadyTasks";
+        model.addAttribute("tasks", taskList);
+        return "task/notReady";
     }
 
 }
