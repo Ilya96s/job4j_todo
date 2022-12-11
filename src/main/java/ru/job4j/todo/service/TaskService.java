@@ -14,7 +14,7 @@ public interface TaskService {
     /**
      * Добавить задачу в базу данных.
      * @param task задача.
-     * @return Optional.of(task) если добавили, иначе Optional.empty().
+     * @return задача.
      */
     Task add(Task task);
 
@@ -50,4 +50,11 @@ public interface TaskService {
      * @return список задач.
      */
     List<Task> findByStatus(boolean status);
+
+    /**
+     * Изменить состояние задачи на 'Выполнено'.
+     * @param id id задачи.
+     * @return true если состояние изменилось, иначе false
+     */
+    boolean setDone(int id);
 }
