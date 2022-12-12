@@ -29,7 +29,14 @@
         <li class="nav-item">
             <a class="nav-link" th:href="@{/tasks/new?status=false}">Новые</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-item nav-link" th:if="${user.name != 'Гость'}" th:href="@{/user/logout}">
+                <span th:text="${user.name}"></span>
+                <span> | Выйти</span>
+            </a>
+        </li>
     </ul>
+    <br>
     <br>
     <ul class="nav justify-content-center">
         <a th:href="@{/tasks/formAdd}" class="btn btn-primary" role="button" data-bs-toggle="button">Добавить задачу</a>

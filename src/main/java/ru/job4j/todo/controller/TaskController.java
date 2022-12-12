@@ -6,6 +6,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.service.TaskService;
+import ru.job4j.todo.utility.HttpSessionUtility;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,11 +34,12 @@ public class TaskController {
      * @return представление tasks.
      */
     @GetMapping("")
-    public String tasks(Model model) {
+    public String tasks(Model model, HttpSession session) {
         List<Task> taskList = service.findAll();
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Список дел пуст....");
         }
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("tasks", taskList);
         return "task/tasks";
     }
@@ -46,7 +49,8 @@ public class TaskController {
      * @return представление addTask.
      */
     @GetMapping("/formAdd")
-    public String formAddTask() {
+    public String formAddTask(Model model, HttpSession session) {
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
         return "task/add";
     }
 
@@ -68,11 +72,12 @@ public class TaskController {
      * @return представление taskInfo если задача найдена в базе данных, иначе переадресация по url tasks/fail.
      */
     @GetMapping("/info/{taskId}")
-    public String taskInfo(Model model, @PathVariable("taskId") int taskId) {
+    public String taskInfo(Model model, @PathVariable("taskId") int taskId, HttpSession session) {
         Optional<Task> optionalTask = service.findById(taskId);
         if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("task", optionalTask.get());
         return "task/info";
     }
@@ -110,11 +115,12 @@ public class TaskController {
      * @return представление updateTask если задача найдена в базе данных, иначе переадресация по url /tasks/fail.
      */
     @GetMapping("/formUpdate/{taskId}")
-    public String formUpdateTask(Model model, @PathVariable("taskId") int taskId) {
+    public String formUpdateTask(Model model, @PathVariable("taskId") int taskId, HttpSession session) {
         Optional<Task> optionalTask = service.findById(taskId);
         if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("task", optionalTask.get());
         return "task/update";
     }
@@ -138,8 +144,9 @@ public class TaskController {
      * @return представление fail.
      */
     @GetMapping("/fail")
-    public String updateFail(Model model) {
+    public String updateFail(Model model, HttpSession session) {
         model.addAttribute("message", "Не удалось выполнить действие");
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
         return "shared/fail";
     }
 
@@ -151,11 +158,14 @@ public class TaskController {
      * @return список задач.
      */
     @GetMapping("/ready")
-    public String getReadyTasks(Model model, @RequestParam(name = "status", required = false) Boolean status) {
+    public String getReadyTasks(Model model,
+                                @RequestParam(name = "status", required = false) Boolean status,
+                                HttpSession session) {
         List<Task> taskList = service.findByStatus(status);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет выполненных задач...");
         }
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("tasks", taskList);
         return "task/ready";
     }
@@ -168,11 +178,14 @@ public class TaskController {
      * @return список задач.
      */
     @GetMapping("/new")
-    public String getNewTasks(Model model, @RequestParam(name = "status", required = false) Boolean status) {
+    public String getNewTasks(Model model,
+                              @RequestParam(name = "status", required = false) Boolean status,
+                              HttpSession session) {
         List<Task> taskList = service.findByStatus(status);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет новых задач....");
         }
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("tasks", taskList);
         return "task/notReady";
     }
