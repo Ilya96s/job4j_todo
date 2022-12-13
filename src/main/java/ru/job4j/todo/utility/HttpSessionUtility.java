@@ -9,7 +9,7 @@ import javax.servlet.http.HttpSession;
  * @author Ilya Kaltygin
  */
 
-public class HttpSessionUtility {
+public final class HttpSessionUtility {
 
     private HttpSessionUtility() {
 

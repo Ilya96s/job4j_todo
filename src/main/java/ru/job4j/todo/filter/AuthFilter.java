@@ -47,6 +47,6 @@ public class AuthFilter implements Filter {
      */
     private boolean checkURL(String url) {
         return AuthFilter.URLS.stream()
-                .anyMatch(url::contains);
+                .anyMatch(url::endsWith);
     }
 }

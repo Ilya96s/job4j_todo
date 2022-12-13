@@ -43,7 +43,7 @@ public class UserController {
     /**
      * Метод добавляет пользователя в базу данных
      * @param user Объект типа User
-     * @return Переадресация по url user/success если успешно, иначе user/fail
+     * @return Переадресация по url /user/success если успешно, иначе /user/regPage?fail=true
      */
     @PostMapping("/registration")
     public String createUser(@ModelAttribute User user) {
@@ -82,7 +82,7 @@ public class UserController {
      * Метод производит поиск пользователя в базе данных по данным, которые были получены из метода loginPage.
      * @param user пользователь созданный из параметров запроса.
      * @param request объект типа HttpServletRequest.
-     * @return Если пользователь найден в базе данных произойдет переадресация по url /tasks, иначе по url user//loginPage?fail=true
+     * @return Если пользователь найден в базе данных произойдет переадресация по url /tasks, иначе по url /user/loginPage?fail=true
      */
     @PostMapping("/login")
     public String login(@ModelAttribute User user, HttpServletRequest request) {
