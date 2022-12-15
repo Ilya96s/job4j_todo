@@ -1,10 +1,10 @@
 package ru.job4j.todo.repository;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.User;
+
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -23,11 +23,9 @@ public class HbmUserRepository implements UserRepository {
             """;
 
     /**
-     * Объект конфигуратор.
-     * Используется для получения объектов Session.
-     * Отвечает за считывание параметров конфигурации Hibernate и подключение к базе данных.
+     * Объекти типа CrudRepository.
      */
-    private final SessionFactory sf;
+    private final CrudRepository crudRepository;
 
     /**
      * Добавление пользователя в базу данных.
@@ -36,19 +34,12 @@ public class HbmUserRepository implements UserRepository {
      */
     @Override
     public Optional<User> add(User user) {
-        Session session = sf.openSession();
-        Optional<User> result = Optional.empty();
         try {
-            session.beginTransaction();
-            session.save(user);
-            session.getTransaction().commit();
-            result = Optional.of(user);
+            crudRepository.run(session -> session.persist(user));
+            return Optional.of(user);
         } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
+            return Optional.empty();
         }
-        return result;
     }
 
     /**
@@ -59,20 +50,7 @@ public class HbmUserRepository implements UserRepository {
      */
     @Override
     public Optional<User> findUserByLoginAndPassword(String login, String password) {
-        Session session = sf.openSession();
-        Optional<User> result = Optional.empty();
-        try {
-            session.beginTransaction();
-            result = session.createQuery(FIND_BY_LOGIN_AND_PASSWORD)
-                    .setParameter("login", login)
-                    .setParameter("password", password)
-                    .uniqueResultOptional();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return result;
+        return crudRepository.queryAndGetOptional(FIND_BY_LOGIN_AND_PASSWORD, User.class,
+                Map.of("login", login, "password", password));
     }
 }

@@ -1,15 +1,11 @@
 package ru.job4j.todo.repository;
 
 import lombok.AllArgsConstructor;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -55,14 +51,10 @@ public class HbmTaskRepository implements TaskRepository {
             WHERE id = : id
             """;
 
-    private static final Logger LOG = LoggerFactory.getLogger(HbmTaskRepository.class.getName());
-
     /**
-     * Объект конфигуратор.
-     * Используется для получения объектов Session.
-     * Отвечает за считывание параметров конфигурации Hibernate и подключение к базе данных.
+     * Объекти типа CrudRepository.
      */
-    private final SessionFactory sf;
+    private final CrudRepository crudRepository;
 
     /**
      * Добавить задачу в базу данных.
@@ -71,17 +63,8 @@ public class HbmTaskRepository implements TaskRepository {
      */
     @Override
     public Task add(Task task) {
-        Session session = sf.openSession();
-        try {
-            session.beginTransaction();
-            task.setCreated(LocalDateTime.now());
-            session.save(task);
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
+        task.setCreated(LocalDateTime.now());
+        crudRepository.run(session -> session.persist(task));
         return task;
     }
 
@@ -89,47 +72,22 @@ public class HbmTaskRepository implements TaskRepository {
      * Изменить задачу в базе данных.
      * @param id id задача, которую нужно изменить.
      * @param task задача.
+     * @return true если изменили задачу, иначе false.
      */
     @Override
     public boolean replace(int id, Task task) {
-        Session session = sf.openSession();
-        boolean result = false;
-        try {
-            session.beginTransaction();
-            result = session.createQuery(REPLACE)
-                    .setParameter("desc", task.getDescription())
-                    .setParameter("done", task.isDone())
-                    .setParameter("id", id)
-                    .executeUpdate() > 0;
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return result;
+        return crudRepository.queryAndGetBoolean(REPLACE, Map.of("desc", task.getDescription(), "done", task.isDone(), "id", task));
     }
 
     /**
+     *
      * Удалить задачу из базы данных.
      * @param id id задачи, которую нужно удалить.
+     * @return true если задача удалена, иначе false.
      */
     @Override
     public boolean delete(int id) {
-        Session session = sf.openSession();
-        boolean result = false;
-        try {
-            session.beginTransaction();
-            result = session.createQuery(DELETE)
-                    .setParameter("id", id)
-                    .executeUpdate() > 0;
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return result;
+        return crudRepository.queryAndGetBoolean(DELETE, Map.of("id", id));
     }
 
     /**
@@ -138,18 +96,7 @@ public class HbmTaskRepository implements TaskRepository {
      */
     @Override
     public List<Task> findAll() {
-        Session session = sf.openSession();
-        List<Task> tasks = new ArrayList<>();
-        try {
-            session.beginTransaction();
-            tasks = session.createQuery(FIND_ALL).list();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return tasks;
+        return crudRepository.queryAndGetList(FIND_ALL, Task.class);
     }
 
     /**
@@ -159,20 +106,7 @@ public class HbmTaskRepository implements TaskRepository {
      */
     @Override
     public Optional<Task> findById(int id) {
-        Session session = sf.openSession();
-        Optional<Task> task = Optional.empty();
-        try {
-            session.beginTransaction();
-            task = Optional.of(session.createQuery(FIND_BY_ID, Task.class)
-                    .setParameter("id", id)
-                    .uniqueResult());
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return task;
+        return crudRepository.queryAndGetOptional(FIND_BY_ID, Task.class, Map.of("id", id));
     }
 
     /**
@@ -181,20 +115,7 @@ public class HbmTaskRepository implements TaskRepository {
      * @return список задач.
      */
     public List<Task> findByStatus(boolean status) {
-        Session session = sf.openSession();
-        List<Task> tasks = new ArrayList<>();
-        try {
-            session.beginTransaction();
-            tasks = session.createQuery(FIND_BY_STATUS)
-                    .setParameter("status", status)
-                    .list();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return tasks;
+        return crudRepository.queryAndGetList(FIND_BY_STATUS, Task.class, Map.of("status", status));
     }
 
     /**
@@ -203,17 +124,6 @@ public class HbmTaskRepository implements TaskRepository {
      * @return true если состояние изменилось, иначе false
      */
     public boolean setDone(int id) {
-        Session session = sf.openSession();
-        boolean result = false;
-        try {
-            session.beginTransaction();
-            result = session.createQuery(SET_DONE).setParameter("id", id).executeUpdate() > 0;
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return result;
+        return crudRepository.queryAndGetBoolean(SET_DONE, Map.of("id", id));
     }
 }
