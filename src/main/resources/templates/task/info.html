@@ -58,6 +58,12 @@
             </p>
             <p>
                 <b>
+                    Автор:
+                </b>
+                <span th:text="${task.user.getName()}"/>
+            </p>
+            <p>
+                <b>
                     Статус выполнения:
                 </b>
                 <span th:if="${task.done}">

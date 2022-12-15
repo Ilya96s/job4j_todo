@@ -49,6 +49,7 @@
             <tr>
                 <th scope="col">Номер задачи</th>
                 <th scope="col">Название</th>
+                <th scope="col">Автор задачи</th>
                 <th scope="col">Дата создания</th>
                 <th scope="col">Состояние задачи</th>
             </tr>
@@ -61,6 +62,7 @@
                         <span th:text="${task.description}"></span>
                     </a>
                 </td>
+                <td th:text="${task.user.getName()}"/>
                 <td th:text="${#temporals.format(task.created, 'dd-MM-yyyy HH:mm')}" />
                 <td  th:if="${task.done}">
                     <font color="green">Выполнено</font>

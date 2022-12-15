@@ -31,6 +31,13 @@ public class Task {
     private String description;
 
     /**
+     * Пользователь связанный с заданием.
+     */
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    /**
      * Дата создания задачи.
      */
     private LocalDateTime created;
