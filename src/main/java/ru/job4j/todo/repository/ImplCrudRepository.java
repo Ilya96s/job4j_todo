@@ -3,6 +3,7 @@ package ru.job4j.todo.repository;
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
@@ -129,18 +130,20 @@ public class ImplCrudRepository implements CrudRepository {
      */
     public <T> T executeTransaction(Function<Session, T> command) {
         var session = sf.openSession();
-        try (session) {
-            var tx = session.beginTransaction();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
             T rsl = command.apply(session);
             tx.commit();
             return rsl;
         } catch (Exception e) {
-            var tx = session.getTransaction();
-            if (tx.isActive()) {
+            if (tx != null) {
                 tx.rollback();
             }
             LOG.error("Exception in method executeTransaction(Function<Session, T> command", e);
             throw e;
+        } finally {
+            session.close();
         }
     }
 }
