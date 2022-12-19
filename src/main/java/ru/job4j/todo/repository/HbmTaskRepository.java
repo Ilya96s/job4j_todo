@@ -30,7 +30,8 @@ public class HbmTaskRepository implements TaskRepository {
             """;
 
     private static final String FIND_ALL = """
-            From Task as task
+            FROM Task as task
+            JOIN FETCH task.priority
             ORDER BY task.id
             """;
 
@@ -41,6 +42,7 @@ public class HbmTaskRepository implements TaskRepository {
 
     private static final String FIND_BY_STATUS = """
             From Task as task
+            JOIN FETCH task.priority
             WHERE done = :status
             ORDER BY task.id
             """;
