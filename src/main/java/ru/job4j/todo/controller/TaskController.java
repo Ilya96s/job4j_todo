@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 import ru.job4j.todo.utility.HttpSessionUtility;
 import javax.servlet.http.HttpSession;
@@ -26,7 +28,12 @@ public class TaskController {
     /**
      * Сервис по работе с задачами
      */
-    private final TaskService service;
+    private final TaskService taskService;
+
+    /**
+     * Сервис по работе с приоритетами
+     */
+    private final PriorityService priorityService;
 
     /**
      * Метод возвращает представление со списком всех задач из базы данных.
@@ -36,7 +43,7 @@ public class TaskController {
      */
     @GetMapping("")
     public String tasks(Model model, HttpSession session) {
-        List<Task> taskList = service.findAll();
+        List<Task> taskList = taskService.findAll();
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Список дел пуст....");
         }
@@ -52,6 +59,7 @@ public class TaskController {
     @GetMapping("/formAdd")
     public String formAddTask(Model model, HttpSession session) {
         model.addAttribute("user", HttpSessionUtility.checkSession(session));
+        model.addAttribute("priorities", priorityService.getAllPriorities());
         return "task/add";
     }
 
@@ -64,7 +72,7 @@ public class TaskController {
     public String createTask(@ModelAttribute Task task, HttpSession session) {
         User user = (User) session.getAttribute("user");
         task.setUser(user);
-        service.add(task);
+        taskService.add(task);
         return "redirect:/tasks";
     }
 
@@ -76,7 +84,7 @@ public class TaskController {
      */
     @GetMapping("/info/{taskId}")
     public String taskInfo(Model model, @PathVariable("taskId") int taskId, HttpSession session) {
-        Optional<Task> optionalTask = service.findById(taskId);
+        Optional<Task> optionalTask = taskService.findById(taskId);
         if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
@@ -92,7 +100,7 @@ public class TaskController {
      */
     @GetMapping("/delete/{taskId}")
     public String deleteTask(@PathVariable("taskId") int taskId) {
-        if (!service.delete(taskId)) {
+        if (!taskService.delete(taskId)) {
             return "redirect:/tasks/fail";
         }
         return "redirect:/tasks";
@@ -105,7 +113,7 @@ public class TaskController {
      */
     @GetMapping("/setStatusDone/{taskId}")
     public String setStatusDone(@PathVariable("taskId") int taskId) {
-        if (!service.setDone(taskId)) {
+        if (!taskService.setDone(taskId)) {
             return "redirect:/shared/fail";
         }
         return "redirect:/tasks";
@@ -119,12 +127,14 @@ public class TaskController {
      */
     @GetMapping("/formUpdate/{taskId}")
     public String formUpdateTask(Model model, @PathVariable("taskId") int taskId, HttpSession session) {
-        Optional<Task> optionalTask = service.findById(taskId);
+        Optional<Task> optionalTask = taskService.findById(taskId);
+        List<Priority> allPriorities = priorityService.getAllPriorities();
         if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
         model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("task", optionalTask.get());
+        model.addAttribute("priorities", allPriorities);
         return "task/update";
     }
 
@@ -135,7 +145,7 @@ public class TaskController {
      */
     @PostMapping("/update")
     public String updateTask(@ModelAttribute Task task) {
-        if (!service.replace(task.getId(), task)) {
+        if (!taskService.replace(task.getId(), task)) {
             return "redirect:/tasks/fail";
         }
         return "redirect:/tasks";
@@ -164,7 +174,7 @@ public class TaskController {
     public String getReadyTasks(Model model,
                                 @RequestParam(name = "status", required = false) Boolean status,
                                 HttpSession session) {
-        List<Task> taskList = service.findByStatus(status);
+        List<Task> taskList = taskService.findByStatus(status);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет выполненных задач...");
         }
@@ -184,7 +194,7 @@ public class TaskController {
     public String getNewTasks(Model model,
                               @RequestParam(name = "status", required = false) Boolean status,
                               HttpSession session) {
-        List<Task> taskList = service.findByStatus(status);
+        List<Task> taskList = taskService.findByStatus(status);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет новых задач....");
         }

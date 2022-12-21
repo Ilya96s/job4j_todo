@@ -20,7 +20,7 @@ public class HbmTaskRepository implements TaskRepository {
 
     private static final String REPLACE = """
             UPDATE Task
-            SET description = :desc, done = :done
+            SET description = :desc, done = :done, priority = :priority
             WHERE id = :id
             """;
 
@@ -78,7 +78,7 @@ public class HbmTaskRepository implements TaskRepository {
      */
     @Override
     public boolean replace(int id, Task task) {
-        return crudRepository.queryAndGetBoolean(REPLACE, Map.of("desc", task.getDescription(), "done", task.isDone(), "id", task));
+        return crudRepository.queryAndGetBoolean(REPLACE, Map.of("desc", task.getDescription(), "done", task.isDone(), "id", task, "priority", task.getPriority()));
     }
 
     /**
