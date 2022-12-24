@@ -17,4 +17,11 @@ public interface PriorityRepository {
      * @return список приоритетов.
      */
     List<Priority> getAllPriorities();
+
+    /**
+     * Найти приоритет по id.
+     * @param id id.
+     * @return eсли значение не null, то будет создан Optional со значением, иначе — пустой Optional.
+     */
+    Optional<Priority> findById(int id);
 }

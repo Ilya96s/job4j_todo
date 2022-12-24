@@ -144,8 +144,9 @@ public class TaskController {
      * @return переадресация по url /tasks если задача обновлена, иначе /tasks/fail.
      */
     @PostMapping("/update")
-    public String updateTask(@ModelAttribute Task task) {
-        if (!taskService.replace(task.getId(), task)) {
+    public String updateTask(@ModelAttribute Task task, HttpSession session) {
+        task.setUser((User) session.getAttribute("user"));
+        if (!taskService.replace(task)) {
             return "redirect:/tasks/fail";
         }
         return "redirect:/tasks";

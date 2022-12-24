@@ -20,6 +20,11 @@ public class HbmPriorityRepository implements PriorityRepository {
             From Priority
             """;
 
+    private static final String FIND_BY_ID = """
+            From Priority
+            WHERE id = :id
+            """;
+
     /**
      * Объекти типа CrudRepository.
      */
@@ -32,5 +37,14 @@ public class HbmPriorityRepository implements PriorityRepository {
     @Override
     public List<Priority> getAllPriorities() {
         return crudRepository.queryAndGetList(FIND_ALL, Priority.class);
+    }
+
+    /**
+     * Найти приоритет по id.
+     * @param id id.
+     * @return eсли значение не null, то будет создан Optional со значением, иначе — пустой Optional.
+     */
+    public Optional<Priority> findById(int id) {
+        return crudRepository.queryAndGetOptional(FIND_BY_ID, Priority.class, Map.of("id", id));
     }
 }

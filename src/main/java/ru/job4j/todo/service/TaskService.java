@@ -19,11 +19,10 @@ public interface TaskService {
     Task add(Task task);
 
     /**
-     * Изменить задачу в базе данных.
-     * @param id id задача, которую нужно изменить.
+     * Обновить задачу в базе данных.
      * @param task задача.
      */
-    boolean replace(int id, Task task);
+    boolean replace(Task task);
 
     /**
      * Удалить задачу из базы данных.

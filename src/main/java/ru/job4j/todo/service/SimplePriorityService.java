@@ -29,4 +29,13 @@ public class SimplePriorityService implements PriorityService {
         return priorityRepository.getAllPriorities();
     }
 
+    /**
+     * Найти приоритет по id.
+     * @param id id.
+     * @return eсли значение не null, то будет создан Optional со значением, иначе — пустой Optional.
+     */
+    @Override
+    public Optional<Priority> findById(int id) {
+        return priorityRepository.findById(id);
+    }
 }

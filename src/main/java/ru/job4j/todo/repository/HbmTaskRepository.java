@@ -1,6 +1,8 @@
 package ru.job4j.todo.repository;
 
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 import java.time.LocalDateTime;
@@ -17,12 +19,6 @@ import java.util.Optional;
 @Repository
 @AllArgsConstructor
 public class HbmTaskRepository implements TaskRepository {
-
-    private static final String REPLACE = """
-            UPDATE Task
-            SET description = :desc, done = :done, priority = :priority
-            WHERE id = :id
-            """;
 
     private static final String DELETE = """
             DELETE From Task
@@ -54,6 +50,11 @@ public class HbmTaskRepository implements TaskRepository {
             """;
 
     /**
+     * Логгер
+     */
+    private static final Logger LOG = LoggerFactory.getLogger(HbmTaskRepository.class.getName());
+
+    /**
      * Объекти типа CrudRepository.
      */
     private final CrudRepository crudRepository;
@@ -71,14 +72,20 @@ public class HbmTaskRepository implements TaskRepository {
     }
 
     /**
-     * Изменить задачу в базе данных.
-     * @param id id задача, которую нужно изменить.
+     * Обновить задачу в базе данных.
      * @param task задача.
      * @return true если изменили задачу, иначе false.
      */
     @Override
-    public boolean replace(int id, Task task) {
-        return crudRepository.queryAndGetBoolean(REPLACE, Map.of("desc", task.getDescription(), "done", task.isDone(), "id", task, "priority", task.getPriority()));
+    public boolean replace(Task task) {
+        boolean result = false;
+        try {
+            crudRepository.run(session -> session.merge(task));
+            result = true;
+        } catch (Exception e) {
+            LOG.error("Exception in method replace(Task task)", e);
+        }
+        return result;
     }
 
     /**
