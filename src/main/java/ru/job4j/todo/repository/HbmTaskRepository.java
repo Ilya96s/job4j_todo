@@ -78,8 +78,7 @@ public class HbmTaskRepository implements TaskRepository {
      */
     @Override
     public boolean replace(Task task) {
-        crudRepository.run(session -> session.merge(task));
-        return true;
+        return crudRepository.executeAndGetBoolean(task);
     }
 
     /**

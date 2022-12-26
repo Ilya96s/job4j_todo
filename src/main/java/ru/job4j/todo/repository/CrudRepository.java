@@ -56,6 +56,14 @@ public interface CrudRepository {
     void run(Consumer<Session> command);
 
     /**
+     * Метод принимает параметры и создает из них команду.
+     * @param object объект типа Т.
+     * @return true или false.
+     * @param <T> generic.
+     */
+    <T> boolean executeAndGetBoolean(T object);
+
+    /**
      * Главный метод в этом классе, выполняющий абстрактную операцию.
      * @param command команда, которую необходимо выполнить.
      * @param <T> generic.

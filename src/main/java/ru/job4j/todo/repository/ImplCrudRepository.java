@@ -121,6 +121,17 @@ public class ImplCrudRepository implements CrudRepository {
     }
 
     /**
+     * Метод принимает объект, создает из него команду и передает ее в метод executeTransaction(Function<Session, T>, который выполняет полученную команду.
+     * @param object объект типа Т.
+     * @return true
+     * @param <T> generic.
+     */
+    public <T> boolean executeAndGetBoolean(T object) {
+        Function<Session, Boolean> command = session -> session.merge(object).equals(object);
+        return executeTransaction(command);
+    }
+
+    /**
      * Главный метод в этом классе, выполняющий абстрактную операцию.
      * Метод принимает команду, открывает сессию, начинает транзакцию, выполняет команду.
      * Команда принимается в виде функционального интерфейса, благодаря чему достигается абстрактность операции.
