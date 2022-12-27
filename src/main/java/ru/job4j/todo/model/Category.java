@@ -5,7 +5,7 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.*;
 
 /**
- * Priority - модель данных, описывающая приоритет
+ * Category - модель данных, описывающая категорию
  *
  * @author Ilya Kaltygin
  */
@@ -13,24 +13,18 @@ import javax.persistence.*;
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
-@Table(name = "priorities")
-public class Priority {
+@Table(name = "categories")
+public class Category {
 
     /**
-     * id.
+     * id категории.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
     private int id;
 
     /**
-     * имя приоритета.
+     * название категории.
      */
     private String name;
-
-    /**
-     * позиция приоритета.
-     */
-    private int position;
 }

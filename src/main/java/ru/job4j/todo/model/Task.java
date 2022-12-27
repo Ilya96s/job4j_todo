@@ -1,9 +1,10 @@
 package ru.job4j.todo.model;
 
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Task - модель данных, описывающая задание
@@ -48,9 +49,20 @@ public class Task {
     private boolean done;
 
     /**
-     * приоритет.
+     * Приоритет.
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "priority_id")
     private Priority priority;
+
+    /**
+     * Список категорий
+     */
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "tasks_categories",
+            joinColumns = { @JoinColumn(name = "task_id")},
+            inverseJoinColumns = { @JoinColumn(name = "category_id")}
+    )
+    private List<Category> categoryList = new ArrayList<>();
 }

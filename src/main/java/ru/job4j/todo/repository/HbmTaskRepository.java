@@ -32,8 +32,10 @@ public class HbmTaskRepository implements TaskRepository {
             """;
 
     private static final String FIND_BY_ID = """
-            From Task
-            WHERE id = :id
+            From Task as task
+            JOIN FETCH task.priority
+            JOIN FETCH task.categoryList
+            WHERE task.id = :id
             """;
 
     private static final String FIND_BY_STATUS = """

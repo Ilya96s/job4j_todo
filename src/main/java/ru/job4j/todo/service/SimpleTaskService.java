@@ -2,11 +2,11 @@ package ru.job4j.todo.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.repository.CategoryRepository;
 import ru.job4j.todo.repository.PriorityRepository;
 import ru.job4j.todo.repository.TaskRepository;
-import ru.job4j.todo.repository.UserRepository;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +31,11 @@ public class SimpleTaskService implements TaskService {
     private final PriorityRepository priorityRepository;
 
     /**
+     * Хранилище категорий
+     */
+    private final CategoryRepository categoryRepository;
+
+    /**
      * Добавить задачу в базу данных.
      * @param task задача.
      * @return задача.
@@ -49,6 +54,12 @@ public class SimpleTaskService implements TaskService {
         var priority = priorityRepository.findById(task.getPriority().getId());
         if (priority.isEmpty()) {
             return false;
+        }
+        var categoryList = task.getCategoryList();
+        for (Category category : categoryList) {
+            if (categoryRepository.findById(category.getId()).isEmpty()) {
+                return false;
+            }
         }
         task.setPriority(priority.get());
         return taskRepository.replace(task);

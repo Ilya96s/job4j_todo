@@ -64,6 +64,20 @@
             </p>
             <p>
                 <b>
+                    Категория:
+                </b>
+                <a th:each="category : ${categories}">
+                    <span th:text="${category.name}"/>
+                </a>
+            </p>
+            <p>
+                <b>
+                    Приоритет:
+                </b>
+                <span th:text="${task.priority.getName()}"/>
+            </p>
+            <p>
+                <b>
                     Статус:
                 </b>
                 <span th:if="${task.done}">

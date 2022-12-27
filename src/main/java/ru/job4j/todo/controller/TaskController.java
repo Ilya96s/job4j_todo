@@ -4,15 +4,19 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Priority;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 import ru.job4j.todo.utility.HttpSessionUtility;
 import javax.servlet.http.HttpSession;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * TaskController - контроллер, обрабатывающий запросы от клиента и возвращающий результаты
@@ -34,6 +38,11 @@ public class TaskController {
      * Сервис по работе с приоритетами
      */
     private final PriorityService priorityService;
+
+    /**
+     * Сервис по работе с категориями
+     */
+    private final CategoryService categoryService;
 
     /**
      * Метод возвращает представление со списком всех задач из базы данных.
@@ -60,6 +69,7 @@ public class TaskController {
     public String formAddTask(Model model, HttpSession session) {
         model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("priorities", priorityService.getAllPriorities());
+        model.addAttribute("categories", categoryService.findAll());
         return "task/add";
     }
 
@@ -69,9 +79,14 @@ public class TaskController {
      * @return переадресация по url /tasks.
      */
     @PostMapping("/create")
-    public String createTask(@ModelAttribute Task task, HttpSession session) {
+    public String createTask(@ModelAttribute Task task, HttpSession session,
+                             @RequestParam("categories") Integer[] categories) {
         User user = (User) session.getAttribute("user");
         task.setUser(user);
+        task.setCategoryList(Arrays.stream(categories)
+                .map(categoryService::findById)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
         taskService.add(task);
         return "redirect:/tasks";
     }
@@ -90,6 +105,7 @@ public class TaskController {
         }
         model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("task", optionalTask.get());
+        model.addAttribute("categories", optionalTask.get().getCategoryList());
         return "task/info";
     }
 
@@ -129,12 +145,14 @@ public class TaskController {
     public String formUpdateTask(Model model, @PathVariable("taskId") int taskId, HttpSession session) {
         Optional<Task> optionalTask = taskService.findById(taskId);
         List<Priority> allPriorities = priorityService.getAllPriorities();
+        List<Category> allCategories = categoryService.findAll();
         if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
         model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("task", optionalTask.get());
         model.addAttribute("priorities", allPriorities);
+        model.addAttribute("categories", allCategories);
         return "task/update";
     }
 
@@ -144,8 +162,13 @@ public class TaskController {
      * @return переадресация по url /tasks если задача обновлена, иначе /tasks/fail.
      */
     @PostMapping("/update")
-    public String updateTask(@ModelAttribute Task task, HttpSession session) {
+    public String updateTask(@ModelAttribute Task task, HttpSession session,
+                             @RequestParam(value = "categories", required = false) Integer[] categories) {
         task.setUser((User) session.getAttribute("user"));
+        task.setCategoryList(Arrays.stream(categories)
+                .map(categoryService::findById)
+                .map(Optional::get)
+                .collect(Collectors.toList()));
         if (!taskService.replace(task)) {
             return "redirect:/tasks/fail";
         }

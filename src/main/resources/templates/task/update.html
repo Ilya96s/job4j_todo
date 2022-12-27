@@ -58,6 +58,12 @@
                     </select>
                 </div>
                 <div class="form-check">
+                    <label for="category.id">Категории задачи</label>
+                    <select class="form-control" name="categories" id="category.id"  multiple="multiple">
+                        <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+                    </select>
+                </div>
+                <div class="form-check">
                     <input class="form-check-input" type="radio" name="done" id="doneTrue" th:field="*{done}" value="true">
                     <label class="form-check-label" for="doneTrue">
                         Выполнена
