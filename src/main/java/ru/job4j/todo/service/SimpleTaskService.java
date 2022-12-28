@@ -7,6 +7,7 @@ import ru.job4j.todo.model.Task;
 import ru.job4j.todo.repository.CategoryRepository;
 import ru.job4j.todo.repository.PriorityRepository;
 import ru.job4j.todo.repository.TaskRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +42,15 @@ public class SimpleTaskService implements TaskService {
      * @return задача.
      */
     @Override
-    public Task add(Task task) {
+    public Task add(Task task, Integer[] categoriesIds) {
+        var categoriesForTask = new ArrayList<Category>();
+        var categoriesFromDb = categoryRepository.findAll();
+        for (Integer i : categoriesIds) {
+            if (categoriesFromDb.get(i - 1) != null) {
+                categoriesForTask.add(categoriesFromDb.get(i - 1));
+            }
+        }
+        task.setCategoryList(categoriesForTask);
         return taskRepository.add(task);
     }
 
@@ -50,17 +59,24 @@ public class SimpleTaskService implements TaskService {
      * @param task задача.
      */
     @Override
-    public boolean replace(Task task) {
+    public boolean replace(Task task, Integer[] categoriesIds) {
+        if (categoriesIds == null) {
+            return false;
+        }
         var priority = priorityRepository.findById(task.getPriority().getId());
         if (priority.isEmpty()) {
             return false;
         }
-        var categoryList = task.getCategoryList();
-        for (Category category : categoryList) {
-            if (categoryRepository.findById(category.getId()).isEmpty()) {
+        var categoriesForTask = new ArrayList<Category>();
+        var categoriesFromDb = categoryRepository.findAll();
+        for (Integer i : categoriesIds) {
+            if (categoriesFromDb.get(i - 1) != null) {
+                categoriesForTask.add(categoriesFromDb.get(i - 1));
+            } else {
                 return false;
             }
         }
+        task.setCategoryList(categoriesForTask);
         task.setPriority(priority.get());
         return taskRepository.replace(task);
     }

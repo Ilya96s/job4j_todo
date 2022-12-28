@@ -13,10 +13,8 @@ import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 import ru.job4j.todo.utility.HttpSessionUtility;
 import javax.servlet.http.HttpSession;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * TaskController - контроллер, обрабатывающий запросы от клиента и возвращающий результаты
@@ -80,14 +78,10 @@ public class TaskController {
      */
     @PostMapping("/create")
     public String createTask(@ModelAttribute Task task, HttpSession session,
-                             @RequestParam("categories") Integer[] categories) {
+                             @RequestParam(value = "categories", required = false) Integer[] categoriesIds) {
         User user = (User) session.getAttribute("user");
         task.setUser(user);
-        task.setCategoryList(Arrays.stream(categories)
-                .map(categoryService::findById)
-                .map(Optional::get)
-                .collect(Collectors.toList()));
-        taskService.add(task);
+        taskService.add(task, categoriesIds);
         return "redirect:/tasks";
     }
 
@@ -144,11 +138,11 @@ public class TaskController {
     @GetMapping("/formUpdate/{taskId}")
     public String formUpdateTask(Model model, @PathVariable("taskId") int taskId, HttpSession session) {
         Optional<Task> optionalTask = taskService.findById(taskId);
-        List<Priority> allPriorities = priorityService.getAllPriorities();
-        List<Category> allCategories = categoryService.findAll();
         if (optionalTask.isEmpty()) {
             return "redirect:/tasks/fail";
         }
+        List<Priority> allPriorities = priorityService.getAllPriorities();
+        List<Category> allCategories = categoryService.findAll();
         model.addAttribute("user", HttpSessionUtility.checkSession(session));
         model.addAttribute("task", optionalTask.get());
         model.addAttribute("priorities", allPriorities);
@@ -165,11 +159,7 @@ public class TaskController {
     public String updateTask(@ModelAttribute Task task, HttpSession session,
                              @RequestParam(value = "categories", required = false) Integer[] categories) {
         task.setUser((User) session.getAttribute("user"));
-        task.setCategoryList(Arrays.stream(categories)
-                .map(categoryService::findById)
-                .map(Optional::get)
-                .collect(Collectors.toList()));
-        if (!taskService.replace(task)) {
+        if (!taskService.replace(task, categories)) {
             return "redirect:/tasks/fail";
         }
         return "redirect:/tasks";

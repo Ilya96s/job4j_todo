@@ -14,15 +14,17 @@ public interface TaskService {
     /**
      * Добавить задачу в базу данных.
      * @param task задача.
+     * @param categoriesIds идентификаторы категорий.
      * @return задача.
      */
-    Task add(Task task);
+    Task add(Task task, Integer[] categoriesIds);
 
     /**
      * Обновить задачу в базе данных.
      * @param task задача.
+     * @param categoriesIds идентификаторы категорий.
      */
-    boolean replace(Task task);
+    boolean replace(Task task, Integer[] categoriesIds);
 
     /**
      * Удалить задачу из базы данных.

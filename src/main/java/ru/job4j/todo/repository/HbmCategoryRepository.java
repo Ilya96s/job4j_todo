@@ -19,6 +19,7 @@ public class HbmCategoryRepository implements CategoryRepository {
 
     private static final String FIND_ALL = """
             From Category
+            ORDER BY id
             """;
 
     private static final String FIND_BY_ID = """
