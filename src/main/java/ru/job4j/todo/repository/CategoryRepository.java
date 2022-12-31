@@ -24,4 +24,11 @@ public interface CategoryRepository {
      * @return Optional.of() если категория с таким id найдена, иначе Optional.empty().
      */
     Optional<Category> findById(int id);
+
+    /**
+     * Найти категории по списку id.
+     * @param categoriesIds список id.
+     * @return список категорий.
+     */
+    List<Category> findCategoriesByIds(List<Integer> categoriesIds);
 }

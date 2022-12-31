@@ -27,6 +27,11 @@ public class HbmCategoryRepository implements CategoryRepository {
             WHERE id = :id
             """;
 
+    private static final String FIND_CATEGORIES_BY_IDS = """
+            From Category
+            WHERE id IN :categoriesIds
+            """;
+
     /**
      * Объект типа CrudRepository.
      */
@@ -48,5 +53,14 @@ public class HbmCategoryRepository implements CategoryRepository {
      */
     public Optional<Category> findById(int id) {
         return crudRepository.queryAndGetOptional(FIND_BY_ID, Category.class, Map.of("id", id));
+    }
+
+    /**
+     * Найти категории по списку id.
+     * @param categoriesIds список id.
+     * @return список категорий.
+     */
+    public List<Category> findCategoriesByIds(List<Integer> categoriesIds) {
+        return crudRepository.queryAndGetList(FIND_CATEGORIES_BY_IDS, Category.class, Map.of("categoriesIds", categoriesIds));
     }
 }

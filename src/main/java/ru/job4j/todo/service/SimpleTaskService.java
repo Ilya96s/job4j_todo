@@ -39,44 +39,33 @@ public class SimpleTaskService implements TaskService {
     /**
      * Добавить задачу в базу данных.
      * @param task задача.
+     * @param categoriesIds список id.
      * @return задача.
      */
     @Override
-    public Task add(Task task, Integer[] categoriesIds) {
-        var categoriesForTask = new ArrayList<Category>();
-        var categoriesFromDb = categoryRepository.findAll();
-        for (Integer i : categoriesIds) {
-            if (categoriesFromDb.get(i - 1) != null) {
-                categoriesForTask.add(categoriesFromDb.get(i - 1));
-            }
-        }
-        task.setCategoryList(categoriesForTask);
+    public Task add(Task task, List<Integer> categoriesIds) {
+        var foundCategoriesById = categoryRepository.findCategoriesByIds(categoriesIds);
+        task.setCategoryList(foundCategoriesById);
         return taskRepository.add(task);
     }
 
     /**
      * Обновить задачу в базе данных.
      * @param task задача.
+     * @param categoriesIds список id.
+     * @return true если успешно обновили задачу, иначе false.
      */
     @Override
-    public boolean replace(Task task, Integer[] categoriesIds) {
+    public boolean replace(Task task, List<Integer> categoriesIds) {
         if (categoriesIds == null) {
             return false;
         }
         var priority = priorityRepository.findById(task.getPriority().getId());
-        if (priority.isEmpty()) {
+        var foundCategoriesByIds = categoryRepository.findCategoriesByIds(categoriesIds);
+        if (foundCategoriesByIds.size() != categoriesIds.size() || priority.isEmpty()) {
             return false;
         }
-        var categoriesForTask = new ArrayList<Category>();
-        var categoriesFromDb = categoryRepository.findAll();
-        for (Integer i : categoriesIds) {
-            if (categoriesFromDb.get(i - 1) != null) {
-                categoriesForTask.add(categoriesFromDb.get(i - 1));
-            } else {
-                return false;
-            }
-        }
-        task.setCategoryList(categoriesForTask);
+        task.setCategoryList(foundCategoriesByIds);
         task.setPriority(priority.get());
         return taskRepository.replace(task);
     }

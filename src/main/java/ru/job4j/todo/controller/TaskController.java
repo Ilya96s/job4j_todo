@@ -78,7 +78,7 @@ public class TaskController {
      */
     @PostMapping("/create")
     public String createTask(@ModelAttribute Task task, HttpSession session,
-                             @RequestParam(value = "categories", required = false) Integer[] categoriesIds) {
+                             @RequestParam(value = "categories", required = false) List<Integer> categoriesIds) {
         User user = (User) session.getAttribute("user");
         task.setUser(user);
         taskService.add(task, categoriesIds);
@@ -157,7 +157,7 @@ public class TaskController {
      */
     @PostMapping("/update")
     public String updateTask(@ModelAttribute Task task, HttpSession session,
-                             @RequestParam(value = "categories", required = false) Integer[] categories) {
+                             @RequestParam(value = "categories", required = false) List<Integer> categories) {
         task.setUser((User) session.getAttribute("user"));
         if (!taskService.replace(task, categories)) {
             return "redirect:/tasks/fail";
