@@ -40,11 +40,14 @@ public class SimpleTaskService implements TaskService {
      * Добавить задачу в базу данных.
      * @param task задача.
      * @param categoriesIds список id.
-     * @return задача.
+     * @return Optional.of(task) если задача добавлена, иначе Optional.empty().
      */
     @Override
-    public Task add(Task task, List<Integer> categoriesIds) {
+    public Optional<Task> add(Task task, List<Integer> categoriesIds) {
         var foundCategoriesById = categoryRepository.findCategoriesByIds(categoriesIds);
+        if (categoriesIds.size() != foundCategoriesById.size()) {
+            return Optional.empty();
+        }
         task.setCategoryList(foundCategoriesById);
         return taskRepository.add(task);
     }

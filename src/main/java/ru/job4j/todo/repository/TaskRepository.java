@@ -15,9 +15,9 @@ public interface TaskRepository {
     /**
      * Добавить задачу в базу данных.
      * @param task задача.
-     * @return задача.
+     * @return Optional.of(task) если задача добавлена, иначе Optional.empty().
      */
-    Task add(Task task);
+    Optional<Task> add(Task task);
 
     /**
      * Обновить задачу в базе данных.

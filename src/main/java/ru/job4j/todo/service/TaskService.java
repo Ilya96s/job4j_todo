@@ -15,9 +15,9 @@ public interface TaskService {
      * Добавить задачу в базу данных.
      * @param task задача.
      * @param categoriesIds список id.
-     * @return задача.
+     * @return Optional.of(task) если задача добавлена, иначе Optional.empty().
      */
-    Task add(Task task, List<Integer> categoriesIds);
+    Optional<Task> add(Task task, List<Integer> categoriesIds);
 
     /**
      * Обновить задачу в базе данных.

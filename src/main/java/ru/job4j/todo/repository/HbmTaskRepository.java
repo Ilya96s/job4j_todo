@@ -64,13 +64,13 @@ public class HbmTaskRepository implements TaskRepository {
     /**
      * Добавить задачу в базу данных.
      * @param task задача.
-     * @return задача.
+     * @return Optional.of(task) если задача добавлена, иначе Optional.empty().
      */
     @Override
-    public Task add(Task task) {
+    public Optional<Task> add(Task task) {
         task.setCreated(LocalDateTime.now());
         crudRepository.run(session -> session.persist(task));
-        return task;
+        return Optional.of(task);
     }
 
     /**

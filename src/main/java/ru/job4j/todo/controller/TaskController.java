@@ -74,14 +74,16 @@ public class TaskController {
     /**
      * Метод добавлет задачу в базу данных.
      * @param task задача.
-     * @return переадресация по url /tasks.
+     * @return переадресация по url /tasks если задача добавлена, иначе по url /tasks/fail.
      */
     @PostMapping("/create")
     public String createTask(@ModelAttribute Task task, HttpSession session,
                              @RequestParam(value = "categories", required = false) List<Integer> categoriesIds) {
         User user = (User) session.getAttribute("user");
         task.setUser(user);
-        taskService.add(task, categoriesIds);
+        if (taskService.add(task, categoriesIds).isEmpty()) {
+            return "redirect:/tasks/fail";
+        }
         return "redirect:/tasks";
     }
 
