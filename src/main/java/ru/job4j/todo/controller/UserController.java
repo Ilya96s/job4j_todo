@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.TimeZoneService;
 import ru.job4j.todo.service.UserService;
 import ru.job4j.todo.utility.HttpSessionUtility;
 
@@ -26,7 +27,12 @@ public class UserController {
     /**
      * Сервис по работе с пользователями
      */
-    private final UserService service;
+    private final UserService userService;
+
+    /**
+     * Сервис по работе с часовыми поясами
+     */
+    private final TimeZoneService timeZoneService;
 
     /**
      * Метод возвращает представление с формой добавления нового пользователя
@@ -37,6 +43,7 @@ public class UserController {
     @GetMapping("/regPage")
     public String formAddUser(Model model, @RequestParam(name = "fail", required = false) Boolean fail) {
         model.addAttribute("fail", fail != null);
+        model.addAttribute("timeZones", timeZoneService.getAvailableTimeZoneIDs());
         return "registration/add";
     }
 
@@ -46,8 +53,9 @@ public class UserController {
      * @return Переадресация по url /user/success если успешно, иначе /user/regPage?fail=true
      */
     @PostMapping("/registration")
-    public String createUser(@ModelAttribute User user) {
-        Optional<User> regUser = service.add(user);
+    public String createUser(@ModelAttribute User user, @RequestParam(name = "timeZone.id", required = false) String zoneId) {
+        user.setTimeZone(zoneId);
+        Optional<User> regUser = userService.add(user);
         if (regUser.isEmpty()) {
             return "redirect:/user/regPage?fail=true";
         }
@@ -86,7 +94,7 @@ public class UserController {
      */
     @PostMapping("/login")
     public String login(@ModelAttribute User user, HttpServletRequest request) {
-        Optional<User> optionalUser = service.findUserByLoginAndPassword(user.getLogin(), user.getPassword());
+        Optional<User> optionalUser = userService.findUserByLoginAndPassword(user.getLogin(), user.getPassword());
         if (optionalUser.isEmpty()) {
             return "redirect:/user/loginPage?fail=true";
         }
@@ -104,5 +112,35 @@ public class UserController {
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/user/loginPage";
+    }
+
+    /**
+     * Метод возвращает представление с формой для редактирования данных пользователя.
+     * @param model модель с данными.
+     * @param session объект типа HttpSession.
+     * @param fail параметр запроса.
+     * @return представление update.
+     */
+    @GetMapping("/userUpdatePage")
+    public String formUpdateUser(Model model, HttpSession session, @RequestParam(name = "fail", required = false) Boolean fail) {
+        model.addAttribute("fail", fail != null);
+        model.addAttribute("user", HttpSessionUtility.checkSession(session));
+        model.addAttribute("timeZones", timeZoneService.getAvailableTimeZoneIDs());
+        return "user/update";
+    }
+
+    /**
+     * Метод обновляет пользователя в базе данных.
+     * @param user пользователь.
+     * @return Если пользователь обновлен в базе данных произойдет переадресация по url /tasks, иначе по url /user/userUpdatePage?fail=true
+     */
+    @PostMapping("/updateUser")
+    public String updateUser(HttpSession session, @ModelAttribute User user, @RequestParam(name = "timeZone.id", required = false) String zoneId) {
+        user.setTimeZone(zoneId);
+        if (!userService.replace(user)) {
+            return "redirect:/user/userUpdatePAge?fail=true";
+        }
+        session.setAttribute("user", userService.findUserByLoginAndPassword(user.getLogin(), user.getPassword()).get());
+        return "redirect:/tasks";
     }
 }

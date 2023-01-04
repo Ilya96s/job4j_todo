@@ -29,11 +29,14 @@
         <li class="nav-item">
             <a class="nav-link" th:href="@{/tasks/new?status=false}">Новые</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-item nav-link" th:if="${user.name != 'Гость'}" th:href="@{/user/logout}">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <span th:text="${user.name}"></span>
-                <span> | Выйти</span>
             </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                <a class="dropdown-item" th:href="@{/user/userUpdatePage}">Редактировать профиль</a>
+                <a class="dropdown-item" th:href="@{/user/logout}">Выйти</a>
+            </div>
         </li>
     </ul>
     <br>

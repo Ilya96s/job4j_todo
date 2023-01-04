@@ -1,6 +1,8 @@
 package ru.job4j.todo.service;
 
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -34,9 +36,10 @@ public interface TaskService {
 
     /**
      * Найти все задачи в базе данных.
+     * @param user пользователь.
      * @return список задач.
      */
-    List<Task> findAll();
+    List<Task> findAll(User user);
 
     /**
      * Найти задачу по id.
@@ -48,9 +51,10 @@ public interface TaskService {
     /**
      * Найти задачи по статусу
      * @param status статус.
+     * @param user пользователь.
      * @return список задач.
      */
-    List<Task> findByStatus(boolean status);
+    List<Task> findByStatus(boolean status, User user);
 
     /**
      * Изменить состояние задачи на 'Выполнено'.

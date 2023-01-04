@@ -38,4 +38,10 @@ public class User {
      * пароль пользователя
      */
     private String password;
+
+    /**
+     * часовой пояс
+     */
+    @Column(name = "user_zone")
+    private String timeZone;
 }

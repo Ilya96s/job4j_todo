@@ -42,4 +42,13 @@ public class SimpleUserService implements UserService {
     public Optional<User> findUserByLoginAndPassword(String login, String password) {
         return userRepository.findUserByLoginAndPassword(login, password);
     }
+
+    /**
+     * Обновить пользователя в базе данных.
+     * @param user пользователь.
+     */
+    @Override
+    public boolean replace(User user) {
+        return userRepository.replace(user);
+    }
 }

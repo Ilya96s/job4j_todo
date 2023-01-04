@@ -22,4 +22,10 @@ public interface UserService {
      * @return Optional.of(user) если пользователь по такому логину и паролю найден, иначе Optional.empty().
      */
     Optional<User> findUserByLoginAndPassword(String login, String password);
+
+    /**
+     * Обновить пользователя в базе данных.
+     * @param user пользователь.
+     */
+    boolean replace(User user);
 }

@@ -18,6 +18,9 @@ import java.util.Optional;
 @AllArgsConstructor
 public class SimplePriorityService implements PriorityService {
 
+    /**
+     * Хранилище приоритетов
+     */
     private PriorityRepository priorityRepository;
 
     /**

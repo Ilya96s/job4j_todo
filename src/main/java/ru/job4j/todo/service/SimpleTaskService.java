@@ -2,12 +2,12 @@ package ru.job4j.todo.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 import ru.job4j.todo.repository.CategoryRepository;
 import ru.job4j.todo.repository.PriorityRepository;
 import ru.job4j.todo.repository.TaskRepository;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +37,11 @@ public class SimpleTaskService implements TaskService {
     private final CategoryRepository categoryRepository;
 
     /**
+     * Сервис по работе с часовыми поясами.
+     */
+    private final TimeZoneService timeZoneService;
+
+    /**
      * Добавить задачу в базу данных.
      * @param task задача.
      * @param categoriesIds список id.
@@ -49,6 +54,7 @@ public class SimpleTaskService implements TaskService {
             return Optional.empty();
         }
         task.setCategoryList(foundCategoriesById);
+        task.setCreated(LocalDateTime.now());
         return taskRepository.add(task);
     }
 
@@ -84,11 +90,12 @@ public class SimpleTaskService implements TaskService {
 
     /**
      * Найти все задачи в базе данных.
+     * @param user пользователь.
      * @return список задач.
      */
     @Override
-    public List<Task> findAll() {
-        return taskRepository.findAll();
+    public List<Task> findAll(User user) {
+        return timeZoneService.changeOfTimeZones(taskRepository.findAll(user), user);
     }
 
     /**
@@ -106,8 +113,8 @@ public class SimpleTaskService implements TaskService {
      * @param status статус.
      * @return список задач.
      */
-    public List<Task> findByStatus(boolean status) {
-        return taskRepository.findByStatus(status);
+    public List<Task> findByStatus(boolean status, User user) {
+        return timeZoneService.changeOfTimeZones(taskRepository.findAll(user), user);
     }
 
     /**

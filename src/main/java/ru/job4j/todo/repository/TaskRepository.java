@@ -1,6 +1,8 @@
 package ru.job4j.todo.repository;
 
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +35,10 @@ public interface TaskRepository {
 
     /**
      * Найти все задачи в базе данных.
+     * @param user пользователь.
      * @return список задач.
      */
-    List<Task> findAll();
+    List<Task> findAll(User user);
 
     /**
      * Найти задачу по id.

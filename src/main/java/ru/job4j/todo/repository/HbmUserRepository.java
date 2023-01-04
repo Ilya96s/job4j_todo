@@ -53,4 +53,13 @@ public class HbmUserRepository implements UserRepository {
         return crudRepository.queryAndGetOptional(FIND_BY_LOGIN_AND_PASSWORD, User.class,
                 Map.of("login", login, "password", password));
     }
+
+    /**
+     * Обновить пользователя в базе данных.
+     * @param user пользователь.
+     */
+    @Override
+    public boolean replace(User user) {
+        return crudRepository.executeAndGetBoolean(user);
+    }
 }

@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
-import java.time.LocalDateTime;
+import ru.job4j.todo.model.User;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +28,7 @@ public class HbmTaskRepository implements TaskRepository {
     private static final String FIND_ALL = """
             FROM Task as task
             JOIN FETCH task.priority
+            WHERE task.user.id = :userId
             ORDER BY task.id
             """;
 
@@ -68,7 +69,6 @@ public class HbmTaskRepository implements TaskRepository {
      */
     @Override
     public Optional<Task> add(Task task) {
-        task.setCreated(LocalDateTime.now());
         crudRepository.run(session -> session.persist(task));
         return Optional.of(task);
     }
@@ -96,11 +96,12 @@ public class HbmTaskRepository implements TaskRepository {
 
     /**
      * Найти все задачи в базе данных.
+     * @param user пользователь.
      * @return список задач.
      */
     @Override
-    public List<Task> findAll() {
-        return crudRepository.queryAndGetList(FIND_ALL, Task.class);
+    public List<Task> findAll(User user) {
+        return crudRepository.queryAndGetList(FIND_ALL, Task.class, Map.of("userId", user.getId()));
     }
 
     /**

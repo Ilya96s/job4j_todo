@@ -50,7 +50,8 @@ public class TaskController {
      */
     @GetMapping("")
     public String tasks(Model model, HttpSession session) {
-        List<Task> taskList = taskService.findAll();
+        User user = (User) session.getAttribute("user");
+        List<Task> taskList = taskService.findAll(user);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Список дел пуст....");
         }
@@ -190,7 +191,8 @@ public class TaskController {
     public String getReadyTasks(Model model,
                                 @RequestParam(name = "status", required = false) Boolean status,
                                 HttpSession session) {
-        List<Task> taskList = taskService.findByStatus(status);
+        User user = (User) session.getAttribute("user");
+        List<Task> taskList = taskService.findByStatus(status, user);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет выполненных задач...");
         }
@@ -210,7 +212,8 @@ public class TaskController {
     public String getNewTasks(Model model,
                               @RequestParam(name = "status", required = false) Boolean status,
                               HttpSession session) {
-        List<Task> taskList = taskService.findByStatus(status);
+        User user = (User) session.getAttribute("user");
+        List<Task> taskList = taskService.findByStatus(status, user);
         if (taskList.isEmpty()) {
             model.addAttribute("message", "Нет новых задач....");
         }
