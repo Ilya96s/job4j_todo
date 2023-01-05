@@ -111,10 +111,11 @@ public class SimpleTaskService implements TaskService {
     /**
      * Найти задачи по статусу
      * @param status статус.
+     * @param user пользователь.
      * @return список задач.
      */
     public List<Task> findByStatus(boolean status, User user) {
-        return timeZoneService.changeOfTimeZones(taskRepository.findAll(user), user);
+        return timeZoneService.changeOfTimeZones(taskRepository.findByStatus(status, user), user);
     }
 
     /**

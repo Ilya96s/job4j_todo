@@ -42,7 +42,8 @@ public class HbmTaskRepository implements TaskRepository {
     private static final String FIND_BY_STATUS = """
             From Task as task
             JOIN FETCH task.priority
-            WHERE done = :status
+            WHERE task.done = :status
+            AND task.user.id = :id
             ORDER BY task.id
             """;
 
@@ -117,10 +118,11 @@ public class HbmTaskRepository implements TaskRepository {
     /**
      * Найти задачи по статусу
      * @param status статус.
+     * @param user пользователь.
      * @return список задач.
      */
-    public List<Task> findByStatus(boolean status) {
-        return crudRepository.queryAndGetList(FIND_BY_STATUS, Task.class, Map.of("status", status));
+    public List<Task> findByStatus(boolean status, User user) {
+        return crudRepository.queryAndGetList(FIND_BY_STATUS, Task.class, Map.of("status", status, "id", user.getId()));
     }
 
     /**

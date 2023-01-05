@@ -50,9 +50,10 @@ public interface TaskRepository {
     /**
      * Найти задачи по статусу
      * @param status статус.
+     * @param user пользователь.
      * @return список задач.
      */
-    List<Task> findByStatus(boolean status);
+    List<Task> findByStatus(boolean status, User user);
 
     /**
      * Изменить состояние задачи на 'Выполнено'.
